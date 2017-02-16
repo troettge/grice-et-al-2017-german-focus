@@ -17,7 +17,7 @@ library(tidyr)
 ## set working directory
 setwd("/Users/simon/Dropbox/Focus\ Paper\ 2/JPHON_Paper/RE-Revision/Script\ and\ data\ Re-Revision/Data_Script_For_Publication_With_Transcriber_Diffs")
 
-## set up output folder for plots
+## set up output folder for plots, will be created if it does not exist
 dir.create(file.path(".", "Plots"))
 
 ## load in data
