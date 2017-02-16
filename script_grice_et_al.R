@@ -9,6 +9,7 @@ library(dplyr)
 library(ggplot2)
 library(purrr)
 library(irr)
+library(grid)
 library(gridExtra)
 library(tidyr)
 
@@ -297,19 +298,20 @@ plot_accent_distribution_for_speaker_heat_map = function(data, speaker) {
   
   heat_map_accent_types = ggplot(data = speaker_subset, aes(x = PitchAccentConsensus, y = Intended, fill = proportion)) +
     geom_tile(colour = "black") +
-    geom_text(aes(label = round(proportion, 1)), color="red") + # Numbers in tiles
+    #geom_text(aes(label = round(proportion, 1)), color="red") + # Numbers in tiles
     scale_fill_gradient(low = "white", 
                         high = "black", 
                         breaks = seq(0, 100, by = 20),
-                        limits = c(0,100)) +
+                        limits = c(0,100),
+                        guide = "colourbar") +
     theme_classic() +
     theme(axis.text = element_text(size = 12, color="black"), 
           axis.title = element_text(size = 15, face = "bold"), 
           legend.title = element_text(size = 15, color="black"),
-          axis.text.y = element_text(angle=90, hjust=0.5)) +
+          axis.text.y = element_text(angle = 90, hjust = 0.5)) +
     scale_x_discrete(position = "top") +
     xlab("Pitch Accent Type") +
-    guides(fill=guide_legend(title="Proportion"))
+    guides(fill = guide_colourbar(title = "Proportion"))
   return(heat_map_accent_types)
 }
 
@@ -336,7 +338,7 @@ perc.data.m1 = perc.data[perc.data$Speaker == "M1", ]
 perc.data.m2 = perc.data[perc.data$Speaker == "M2", ]
 
 ## Actually plot heat map 
-plot_heat_map <- function(perc.data.speaker) {
+plot_heat_map <- function(perc.data.speaker, speaker) {
   prop.table.speaker = prop.table(
     table(perc.data.speaker$Intended.Focus, perc.data.speaker$Rated.As), 1)
   prop.df.speaker = as.data.frame(prop.table.speaker)
@@ -349,62 +351,50 @@ plot_heat_map <- function(perc.data.speaker) {
   prop.df.speaker$Intended = factor(prop.df.speaker$Intended, levels(prop.df.speaker$Intended)[c(3, 4, 2, 1)])
   heat_map = ggplot(data = prop.df.speaker, aes(x = Rated, y = Intended, fill = Proportion*100)) +
     geom_tile(colour = "black") +
-    geom_text(aes(label = round(Proportion*100, 1)), color="red") + # Numbers in tiles
+    #geom_text(aes(label = round(Proportion*100, 1)), color="red") + # Numbers in tiles
     scale_fill_gradient(low = "white", 
                         high = "black", 
-                        breaks = seq(0, 80, by = 20),
-                        limits = c(0, 80)) +
+                        breaks = seq(0, 100, by = 20),
+                        limits = c(0, 100),
+                        guide = "colourbar") +
     theme_classic() +
     theme(axis.text = element_text(size = 12, color="black"), 
           axis.title = element_text(size = 15, face = "bold"), 
           legend.title = element_text(size = 15, color="black"), 
           axis.text.y = element_text(angle=90, hjust=0.5)) +
-    scale_x_discrete(position = "top") + 
-    guides(fill=guide_legend(title="Proportion"))
+    scale_x_discrete(position = "top") +
+    guides(fill = guide_colourbar(title = "Proportion"))
 }
 
-heat_map_f1_perception = plot_heat_map(perc.data.f1)
-heat_map_f2_perception = plot_heat_map(perc.data.f2)
-heat_map_f3_perception = plot_heat_map(perc.data.f3)
-heat_map_m1_perception = plot_heat_map(perc.data.m1)
-heat_map_m2_perception = plot_heat_map(perc.data.m2)
+heat_map_f1_perception = plot_heat_map(perc.data.f1, "F1")
+heat_map_f2_perception = plot_heat_map(perc.data.f2, "F2")
+heat_map_f3_perception = plot_heat_map(perc.data.f3, "F3")
+heat_map_m1_perception = plot_heat_map(perc.data.m1, "M1")
+heat_map_m2_perception = plot_heat_map(perc.data.m2, "M2")
 
 
 #### combine heat maps (production + perception) ====
-combined_plot_F1 = arrangeGrob(
+combined_heat_map_plots = arrangeGrob(
+  textGrob("F1"),
   heat_map_f1_production,
   heat_map_f1_perception,
-  ncol = 2,
-  nrow = 1
-)
-
-combined_plot_F2 = arrangeGrob(
+  textGrob("F2"),
   heat_map_f2_production,
   heat_map_f2_perception,
-  ncol = 2,
-  nrow = 1
-)
-
-combined_plot_F3 = arrangeGrob(
+  textGrob("F3"),
   heat_map_f3_production,
   heat_map_f3_perception,
-  ncol = 2,
-  nrow = 1
-)
-
-combined_plot_M1 = arrangeGrob(
+  textGrob("M1"),
   heat_map_m1_production,
   heat_map_m1_perception,
-  ncol = 2,
-  nrow = 1
-)
-
-combined_plot_M2 = arrangeGrob(
+  textGrob("M2"),
   heat_map_m2_production,
   heat_map_m2_perception,
-  ncol = 2,
-  nrow = 1
+  ncol = 3,
+  nrow = 5,
+  widths = c(0.5,1.5,1.5)
 )
+
 
 #### plot the differences accross transcribers ====
 difference_props = focus[focus$DifferenceType != "S",] %>% 
@@ -443,17 +433,8 @@ ggsave("plots/accent_proportion_speaker.png",
        plot = accent_proportion_speaker, width = 10, height = 9)
 ggsave("plots/transcriber_diff.png",
        plot = transcriber_diff, width = 7, height = 6)
-
-ggsave("plots/combined_F1.png",
-       plot = combined_plot_F1, width = 12, height = 5)
-ggsave("plots/combined_F2.png",
-       plot = combined_plot_F2, width = 12, height = 5)
-ggsave("plots/combined_F3.png",
-       plot = combined_plot_F3, width = 12, height = 5)
-ggsave("plots/combined_M1.png",
-       plot = combined_plot_M1, width = 12, height = 5)
-ggsave("plots/combined_M2.png",
-       plot = combined_plot_M2, width = 12, height = 5)
+ggsave("plots/combined_heat_map_plots.png",
+       plot = combined_heat_map_plots, width = 10, height = 15)
 
 
 #### calculate interrater reliability ####
