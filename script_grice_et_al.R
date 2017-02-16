@@ -17,6 +17,9 @@ library(tidyr)
 ## set working directory
 setwd("/Users/simon/Dropbox/Focus\ Paper\ 2/JPHON_Paper/RE-Revision/Script\ and\ data\ Re-Revision/Data_Script_For_Publication_With_Transcriber_Diffs")
 
+## set up output folder for plots
+dir.create(file.path(".", "Plots"))
+
 ## load in data
 focus = read.csv("focus_data_intonation_production.csv")
 perc.data = read.csv("focus_data_intonation_perception.csv")
