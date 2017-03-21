@@ -46,179 +46,112 @@ focus_agg <-
 focus = full_join(focus, focus_agg)
 
 ## change factor levels for plots
-focus$Intended = factor(focus$Intended, levels = c("contrastive","narrow","broad"))
-
+focus$Intended = factor(focus$Intended, levels = c("contrastive", "narrow", "broad"))
 
 #### set plot parameters ####
 ## store plot parameters for violin plot
-plot_parameters_violin = list(coord_flip() ,
-                              stat_summary(fun.y = mean, geom = "point", size = 2, color = "black"),
-                              scale_fill_manual(values = c("#CC6666", "#9999CC", "#66CC99"), breaks = c("broad", "narrow", "contrastive"), name = "Focus type"),
-                              scale_colour_manual(values = c("#CC6666", "#9999CC", "#66CC99"), breaks = c("broad", "narrow", "contrastive"), name = "Focus type", guide = FALSE),
-                              guides(fill = guide_legend(title = "Focus Type", title.position = "top")))
-
-## store plot parameters for scatter plot
-plot_parameters_jitter = list(coord_flip(),
-                              scale_colour_manual(values = c("#CC6666", "#9999CC", "#66CC99"), breaks = c("broad", "narrow", "contrastive"), name = "Focus type"),
-                              facet_grid(Speaker ~ .),
-                              guides(fill = guide_legend(title = "focus type", title.position = "top")))
+plot_parameters_violin = list(coord_flip(),
+                              stat_summary(fun.y = mean, geom = "point", size = 2, color = "black"))
                                   
 ## store plot parameters for plot                                
-theme_parameters =   list(theme_classic(),
-                     theme(legend.position = "right",
-                     legend.title  =  element_text(size = 15),
-                     legend.text = element_text(size = 15),
-                     legend.key.size = unit(1.5, 'lines'),
-                     strip.text.y = element_text(size = 15, face = "bold"),
-                     strip.background = element_blank(),
-                     panel.border = element_rect(colour = "black",fill = NA),
-                     axis.text = element_text(size = 12),
-                     axis.title = element_text(size = 15, face = "bold"),
-                     axis.ticks.x = element_line(size = 0.5, linetype = 'solid'), 
-                     axis.ticks.y = element_blank(),
-                     plot.title = element_text(size = 15, face = "bold")))
-
-
+theme_parameters = list(theme_classic(),
+                   theme(legend.position = "right",
+                   legend.title  =  element_text(size = 15),
+                   legend.text = element_text(size = 15),
+                   legend.key.size = unit(1.5, 'lines'),
+                   strip.text.y = element_text(size = 15, face = "bold"),
+                   strip.background = element_blank(),
+                   panel.border = element_rect(colour = "black", fill = NA),
+                   axis.text = element_text(size = 12, colour = "black"),
+                   axis.title = element_text(size = 15, face = "bold"),
+                   axis.ticks.x = element_line(size = 0.5, linetype = 'solid'),
+                   plot.title = element_text(size = 15, face = "bold")))
 
 #### plot measures #####
 ## plot Onglide ====
-# Plot onglide for all speakers
 onglide_violin <-
-  ggplot(focus, aes(x = Intended, y = Onglide, fill = Intended)) +
-  geom_hline(aes(yintercept = mean_Onglide, colour = Intended), linetype = "longdash") +
+  ggplot(focus, aes(x = Intended, y = Onglide)) +
+  geom_hline(aes(yintercept = mean_Onglide), linetype = "longdash") +
   ylab("Onglide (semitones)") +
   scale_y_continuous(breaks = seq(-10, 15, by  =  5), limits  =  c(-10, 15)) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin + 
   theme_parameters +
-  theme(axis.text.y = element_blank(), axis.title.y = element_blank()) +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
-
-# plot onglide for speaker separately
-plot_onglide_for_speaker = function(data, speaker) {
-  speaker_subset = data[data$Speaker == speaker,]
-  onglide_violin =
-    ggplot(speaker_subset, aes(x = Intended, y = Onglide, fill = Intended)) +
-      geom_hline(aes(yintercept = mean_Onglide, colour = Intended), linetype = "longdash") +
-      ylab("Onglide (semitones)") +
-      scale_y_continuous(breaks = seq(-10, 15, by  =  5), limits  =  c(-10, 15)) +
-      geom_violin() +
-      plot_parameters_violin + 
-      theme_parameters +
-      theme(axis.text.y = element_blank(), axis.title.y = element_blank())
-  return(onglide_violin)
-}
 
 ## plot Alignment ====
-# plot Alignment for all speakers
 alignment_violin <-
   ggplot(focus, aes(x = Intended, y = AlignmentVowel,  fill = Intended)) +
-  geom_hline(aes(yintercept = mean_AlignmentVowel, colour = Intended), linetype = "longdash") +
+  geom_hline(aes(yintercept = mean_AlignmentVowel), linetype = "longdash") +
   ylab("Alignment (ms)") +
   scale_y_continuous(breaks = seq(-200, 200, by = 100), limits = c(-200, 200 )) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin +
   theme_parameters +
-  theme(axis.text.y = element_blank(), axis.title.y = element_blank()) +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
-
-# plot Alignment for speaker separately
-plot_alignment_for_speaker = function(data, speaker) {
-  speaker_subset = data[data$Speaker == speaker,]
-  alignment_violin <-
-  ggplot(speaker_subset, aes(x = Intended, y = AlignmentVowel,  fill = Intended)) +
-    geom_hline(aes(yintercept = mean_AlignmentVowel, colour = Intended), linetype = "longdash") +
-    ylab("Alignment (ms)") +
-    scale_y_continuous(breaks = seq(-200, 200, by = 100), limits = c(-200, 200 )) +
-    geom_violin() +
-    plot_parameters_violin +
-    theme_parameters +
-    theme(axis.text.y = element_blank(), axis.title.y = element_blank())
-  return(alignment_violin)
-}
 
 ## plot Relative Alignment ====
 rel_alignment_violin =
   ggplot(focus, aes(x = Intended, y = RelativeAlignmentSyllable*100,  fill = Intended)) +
-  geom_hline(aes(yintercept = mean_RelativeAlignment*100, colour = Intended), linetype = "longdash") +
+  geom_hline(aes(yintercept = mean_RelativeAlignment*100), linetype = "longdash") +
   ylab("Relative Alignment in Proportion \n to the Duration of the Accented Syllable (%)") +
   scale_y_continuous(breaks = seq(-70, 150, by = 20), limits = c(-70, 150 )) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin +
   theme_parameters +
-  theme(axis.text.y = element_blank(), axis.title.y = element_blank()) +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
 
 ## plot Target Height ====
-# plot target height for all speakers
 target_height_violin <-
   ggplot(focus, aes(x = Intended, y = TargetHeight,  fill = Intended)) +
-  geom_hline(aes(yintercept = mean_TargetHeight, colour = Intended), linetype = "longdash") +
+  geom_hline(aes(yintercept = mean_TargetHeight), linetype = "longdash") +
   ylab("Target Height (semitones)") +
   scale_y_continuous(breaks = seq(0, 20, by = 5), limits = c(0, 20)) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin +
   theme_parameters +
-  theme(axis.text.y = element_blank(), axis.title.y = element_blank()) +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
-
-# plot target height for speaker separately
-plot_target_height_for_speaker = function(data, speaker) {
-  speaker_subset = data[data$Speaker == speaker,]
-  target_height_violin <-
-    ggplot(speaker_subset, aes(x = Intended, y = TargetHeight,  fill = Intended)) +
-    geom_hline(aes(yintercept = mean_TargetHeight, colour = Intended), linetype = "longdash") +
-    ylab("Target Height (semitones)") +
-    scale_y_continuous(breaks = seq(0, 20, by = 5), limits = c(0, 20)) +
-    geom_violin() +
-    plot_parameters_violin +
-    theme_parameters +
-    theme(axis.text.y = element_blank(), axis.title.y = element_blank())
-  return(target_height_violin)
-}
 
 ## plot Displacement of Opening Gesture ====
 displacement_violin =
   ggplot(focus, aes(x = Intended, y = DisplacementOpeningGesture, fill = Intended)) +
-  geom_hline(aes(yintercept = mean_Displacement, colour = Intended), linetype = "longdash") +
+  geom_hline(aes(yintercept = mean_Displacement), linetype = "longdash") +
   ylab("Displacement of Opening Gesture (mm)") +
   scale_y_continuous(breaks = seq(0, 30, by  =  5), limits  =  c(-5, 30)) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin +
   theme_parameters +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
 
 ## plot Duration of Opening Gesture ====
 duration_violin =
   ggplot(focus, aes(x = Intended, y = DurationOpeningGesture, fill = Intended)) +
-  geom_hline(aes(yintercept = mean_Duration, colour = Intended), linetype = "longdash") +
+  geom_hline(aes(yintercept = mean_Duration), linetype = "longdash") +
   ylab("Duration of Opening Gesture (ms)") +
   scale_y_continuous(breaks = seq(45, 175, by  = 25), limits  =  c(45, 175)) +
-  geom_violin() +
+  geom_violin(fill = "#A2A2A2") +
   plot_parameters_violin +
   theme_parameters +
+  theme(axis.title.y = element_blank(), legend.position="none") +
   facet_grid(Speaker ~ .)
 
 ## plot Reference F0 210 ms after accented vowel ====
 reference_scatter =
-ggplot(focus, aes(x = Intended, y = refL, color = Intended)) +
+ggplot(focus, aes(x = Intended, y = refL, shape = Intended)) +
   geom_jitter(size = 3) + 
+  coord_flip() +
+  scale_shape_manual(values=c(16,17,19)) +
   ylab("Reference point (Hz) \n 210 ms after target word") +
   plot_parameters_jitter +
+  guides(shape = guide_legend(title="Focus Type")) +
   theme_parameters +
+  theme(axis.title.y = element_blank()) +
   facet_grid(Speaker ~ .)
-
-
-## extract legend of plot (helper function) ====
-g_legend = function(a.gplot) {
-  tmp = ggplot_gtable(ggplot_build(a.gplot))
-  leg = which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend = tmp$grobs[[leg]]
-  return(legend)
-}
-
-
-
 
 #### plot proportions of pitch accents ####
 ## aggregate pitch accent distribution overall ====
@@ -272,22 +205,6 @@ accent_proportion_speaker =
     ylab("Proportion of Accent Type (%)") +
     xlab("Focus Type") +
     guides(fill=guide_legend(title="Accent Type"))
-
-## plot pitch accent distribution per speaker in separate plot as stacked bar chart ====
-plot_accent_distribution_for_speaker = function(data, speaker) {
-  speaker_subset = data[data$Speaker == speaker,]
-  accent_proportion_plot <-
-    ggplot(speaker_subset, aes(x = Intended, y = proportion, fill = PitchAccentConsensus)) +
-    geom_bar(stat = "identity", colour = "black") +
-    theme_bw() + 
-    scale_fill_manual(values = c("black", "grey", "white"), guide = guide_legend(reverse=FALSE)) +
-    ylim(0,101) +
-    ylab("Proportion of Accent Type (%)") +
-    xlab("Focus Type") +
-    theme_parameters +
-    guides(fill=guide_legend(title="Accent Type"))
-  return(accent_proportion_plot)
-}
 
 ## plot pitch accent distribution per speaker in separate plot as heat map ====
 plot_accent_distribution_for_speaker_heat_map = function(data, speaker) {
@@ -396,43 +313,25 @@ combined_heat_map_plots = arrangeGrob(
 )
 
 
-#### plot the differences accross transcribers ====
-difference_props = focus[focus$DifferenceType != "S",] %>% 
-  group_by(DifferenceType) %>% 
-  summarise (n = n()) %>% 
-  mutate(freq = n / sum(n))
-levels(difference_props$DifferenceType) <- c("H+!H* vs. H*","L+H* vs. H*","One label missing", "S")
-
-transcriber_diff =
-ggplot(difference_props, aes(x = DifferenceType, y = freq*100)) +
-  geom_bar(stat="identity") +
-  ylim(0,60) +
-  xlab("Difference Type") +
-  ylab("Proportion of Differences Across Transcribers (%)") +
-  theme_bw()
-
-
 ### save all plots ====
 ggsave("plots/onglide_violin.png", 
-       plot = onglide_violin, width = 7, height = 9)
+       plot = onglide_violin, width = 6, height = 7)
 ggsave("plots/alignment_violin.png",
-       plot = alignment_violin, width = 7, height = 9)
+       plot = alignment_violin, width = 6, height = 7)
 ggsave("plots/rel_alignment_violin.png",
-       plot = rel_alignment_violin, width = 7, height = 9)
+       plot = rel_alignment_violin, width = 6, height = 7)
 ggsave("plots/target_height_violin.png",
-       plot = target_height_violin, width = 7, height = 9)
+       plot = target_height_violin, width = 6, height = 7)
 ggsave("plots/displacement_violin.png",
-       plot = displacement_violin, width = 7, height = 9)
+       plot = displacement_violin, width = 6, height = 7)
 ggsave("plots/duration_violin.png",
-       plot = duration_violin, width = 7, height = 9)
+       plot = duration_violin, width = 6, height = 7)
 ggsave("plots/reference_scatter.png",
-       plot = reference_scatter, width = 7, height = 9)
+       plot = reference_scatter, width = 6, height = 7)
 ggsave("plots/accent_proportion_overall.png",
        plot = accent_proportion_overall, width = 7, height = 6)
 ggsave("plots/accent_proportion_speaker.png",
-       plot = accent_proportion_speaker, width = 10, height = 9)
-ggsave("plots/transcriber_diff.png",
-       plot = transcriber_diff, width = 7, height = 6)
+       plot = accent_proportion_speaker, width = 10, height = 7)
 ggsave("plots/combined_heat_map_plots.png",
        plot = combined_heat_map_plots, width = 10, height = 15)
 
