@@ -141,17 +141,18 @@ duration_violin =
   facet_grid(Speaker ~ .)
 
 ## plot Reference F0 210 ms after accented vowel ====
+focus$Intended = factor(focus$Intended, levels = c("broad", "narrow", "contrastive"))
 reference_scatter =
 ggplot(focus, aes(x = Intended, y = refL, shape = Intended)) +
-  geom_jitter(size = 3) + 
+  geom_jitter(size = 2, alpha = 0.85) +
   coord_flip() +
-  scale_shape_manual(values=c(16,17,19)) +
+  scale_shape_manual(values=c(0, 1, 2)) +
   ylab("Reference point (Hz) \n 210 ms after target word") +
-  plot_parameters_jitter +
   guides(shape = guide_legend(title="Focus Type")) +
   theme_parameters +
   theme(axis.title.y = element_blank()) +
   facet_grid(Speaker ~ .)
+focus$Intended = factor(focus$Intended, levels = c("contrastive", "narrow", "broad"))
 
 #### plot proportions of pitch accents ####
 ## aggregate pitch accent distribution overall ====
